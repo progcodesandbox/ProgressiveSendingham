@@ -1,5 +1,6 @@
 class AuthController < ApplicationController
   skip_before_action :authenticate_user!, only: [:oauth_callback, :slack_handshake]
+  protect_from_forgery with: :null_session, only: [:slack_handshake]
 
   def oauth_callback
     if team_member?
@@ -13,7 +14,7 @@ class AuthController < ApplicationController
   end
 
   def slack_handshake
-    render plain: params.require(:challenge)
+    render json: { challenge: params.require(:challenge) }
   end
 
   private

@@ -9,7 +9,9 @@ describe AuthController do
         challenge: random_value
       }
 
-      expect(response.body).to eq random_value
+      challenge = JSON.parse(response.body)["challenge"]
+
+      expect(challenge).to eq random_value
     end
   end
 end
