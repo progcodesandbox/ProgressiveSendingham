@@ -12,7 +12,9 @@ Rails.application.routes.draw do
 
   root to: "sessions#new"
 
-  match "/auth/:provider/callback" => "auth#oauth_callback", via: [:get]
+  match "/auth/:provider/callback" => "auth#oauth_callback",  via: [:get]
+  match "/slack/handshake"         => "auth#slack_handshake", via: [:post]
+
   resource  :session, only: [:new, :create, :destroy]
   resources :employees, only: [:new, :create, :index, :edit, :update, :destroy]
   resources :users, only: [:edit, :update, :index]
