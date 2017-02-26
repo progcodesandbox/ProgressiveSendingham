@@ -1,5 +1,7 @@
 class AuthController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:oauth_callback, :slack_handshake]
+  skip_before_action :authenticate_user!,   only: [:oauth_callback, :slack_handshake, :slack_redirect]
+  before_action      :authenticate_slack!,  only: [:slack_handshake]
+
   protect_from_forgery with: :null_session, only: [:slack_handshake]
 
   def oauth_callback
@@ -13,11 +15,33 @@ class AuthController < ApplicationController
     end
   end
 
+  # TODO Relocate, rename. Make it make more sense :)
   def slack_handshake
-    render json: { challenge: params.require(:challenge) }
+    case params[:type]
+    when "url_verification"
+      render json: { challenge: params.require(:challenge) }
+    when "event_callback"
+      case params[:event][:type]
+      when "channel_created"
+      when "team_join"
+        Employee.create({
+          started_on:     Date.today,
+          time_zone:      params[:event][:user].require(:tz),
+          slack_username: params[:event][:user].require(:name),
+          slack_user_id:  params[:event][:user].require(:id)
+        })
+      end
+      head :no_content
+    end
   end
 
   private
+
+  # TODO I don't like this, verify the token in a routing constraint
+  # TODO With the routing constraint, requests without the matching verification token will be a 404
+  def authenticate_slack!
+    raise unless params.require(:token) === ENV['SLACK_APP_VERIFICATION_TOKEN']
+  end
 
   def team_member?
     auth_hash.credentials.team_member?
