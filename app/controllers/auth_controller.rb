@@ -25,7 +25,9 @@ class AuthController < ApplicationController
       when "channel_created"
       when "team_join"
         Employee.create({
-          started_on:     Date.today,
+          started_on:     Time.now.in_time_zone(
+                            params[:event][:user].require(:tz)
+                          ),
           time_zone:      params[:event][:user].require(:tz),
           slack_username: params[:event][:user].require(:name),
           slack_user_id:  params[:event][:user].require(:id)
