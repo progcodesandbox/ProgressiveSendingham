@@ -1,6 +1,6 @@
 business_time:
-  beginning_of_workday: 9:00 am
-  end_of_workday: 9:30 pm
+  beginning_of_workday: 1:00 am
+  end_of_workday: 11:55 pm
   holidays:
     - September 28, 2015
     - September 29, 2015
